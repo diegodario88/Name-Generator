@@ -91,11 +91,16 @@
         <div class="card">
           <div class="card-body">
             <ul class="list-group">
-              <li
-                class="list-group-item"
-                v-for="dominio in dominios"
-                v-bind:key="dominio"
-              >{{ dominio }}</li>
+              <li class="list-group-item" v-for="dominio in dominios" v-bind:key="dominio.name">
+                <div class="row">
+                  <div class="col-md">{{ dominio.name }}</div>
+                  <div class="col-md text-right">
+                    <a class="btn btn-info" v-bind:href="dominio.checkout" target="_blank">
+                      <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+                    </a>
+                  </div>
+                </div>
+              </li>
             </ul>
           </div>
         </div>
@@ -107,7 +112,6 @@
 <script>
 import "bootstrap/dist/css/bootstrap.css";
 import "font-awesome/css/font-awesome.css";
-import { log } from "util";
 
 export default {
   name: "app",
@@ -116,18 +120,7 @@ export default {
       prefixo: "",
       sufixo: "",
       prefixos: ["Air", "Jet", "Flight"],
-      sufixos: ["Hub", "Station", "Mart"],
-      dominios: [
-        "AirHub",
-        "AirStation",
-        "AirMart",
-        "JetHub",
-        "JetStation",
-        "JetMart",
-        "FlightHub",
-        "FlightStation",
-        "FlightMart"
-      ]
+      sufixos: ["Hub", "Station", "Mart"]
     };
   },
 
@@ -135,28 +128,34 @@ export default {
     addPrefixo(prefixo) {
       this.prefixos.push(prefixo);
       this.prefixo = "";
-      this.generate();
     },
     addSufixo(sufixo) {
       this.sufixos.push(sufixo);
       this.sufixo = "";
-      this.generate();
     },
-    generate() {
-      this.dominios = [];
-      this.prefixos.forEach(prefix => {
-        this.sufixos.forEach(sufix => {
-          this.dominios.push(prefix + sufix);
-        });
-      });
-    },
+
     deletarPrefixo(prefix) {
       this.prefixos.splice(this.prefixos.indexOf(prefix), 1);
-      this.generate();
     },
     deletarSufixo(sufix) {
       this.sufixos.splice(this.sufixos.indexOf(sufix), 1);
-      this.generate();
+    }
+  },
+  computed: {
+    dominios() {
+      const domains = [];
+      this.prefixos.forEach(prefix => {
+        this.sufixos.forEach(sufix => {
+          const name = prefix + sufix;
+          const url = name.toLocaleLowerCase();
+          const checkout = `https://checkout.hostgator.com.br/?a=add&sld=${url}&tld=.com.br`;
+          domains.push({
+            name,
+            checkout
+          });
+        });
+      });
+      return domains;
     }
   }
 };
